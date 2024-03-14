@@ -26,7 +26,16 @@ This is a basic full-stack application where users can enter customer data and c
   - TypeORM: Object-Relational Mapping (ORM) library for TypeScript to interact with relational databases.
   - Docker: Used to deploy MongoDB as a containerized application.
 
-  ## Getting Started
+## Backend API Documentation
+
+The backend API provides the following endpoints:
+
+- `POST /calculate`: Calculate insurance price based on customer data.
+- `GET /logs` : Retrieves insurance policy logs
+
+You can test endpoints using swagger on `http://localhost:3001/api`
+
+## Getting Started
 
 To run the application locally, follow these steps:
 
@@ -65,11 +74,4 @@ To run the application locally, follow these steps:
 
 4. Open your browser and navigate to `http://localhost:3000` to use the application.
 
-## Backend API Documentation
-
-The backend API provides the following endpoints:
-
-- `POST /calculate`: Calculate insurance price based on customer data.
-- `GET /logs` : Retrieves insurance policy logs
-
-You can test endpoints using swagger on `http://localhost:3001/api`
+5. There are .env.example files with descriptions of needed environment variables if you want to change them. (For simplicity of this test task, I push .env files also)
