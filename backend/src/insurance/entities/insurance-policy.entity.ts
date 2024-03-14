@@ -79,7 +79,7 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
 
   // match price if priceMatch is available
   matchTotalPrice(modifierEntities: ModifiersEntity[]): boolean {
-    if (this.priceMatch <= 0) return false;
+    if (!this.priceMatch || this.priceMatch <= 0) return false;
 
     const fixedTotalPrice = this.priceMatch;
 
@@ -89,7 +89,7 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
     ).amount;
     const bonusProtectionMultiplier =
       bonusProtection *
-      (this.coverages[Coverages.BONUS_PROTECTION].active ? 1 : 0);
+      (this.coverages[Coverages.BONUS_PROTECTION]?.active ? 1 : 0);
 
     // Commercial discount
     const commercialDiscount = modifierEntities.find(
@@ -97,27 +97,21 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
     ).amount;
     const commercialDiscountMultiplier =
       commercialDiscount *
-      (this.discounts[Discounts.COMMERCIAL].active ? 1 : 0);
+      (this.discounts[Discounts.COMMERCIAL]?.active ? 1 : 0);
 
     // VIP discount
     const vipDiscount = modifierEntities.find(
       (e) => e.title === ModifierTitle.VIP_DISCOUNT,
     ).amount;
     const vipDiscountMultiplier =
-      vipDiscount * (this.discounts[Discounts.VIP].active ? 1 : 0);
+      vipDiscount * (this.discounts[Discounts.VIP]?.active ? 1 : 0);
 
     // calculate base price to match price after all modifiers
     const newBasePrice =
       fixedTotalPrice /
       ((1 + bonusProtectionMultiplier - commercialDiscountMultiplier) *
         (1 - vipDiscountMultiplier));
-    this.basePrice = newBasePrice;
-
-    // Set all these modifiers to false, as they are not possible to include if priceMatching is active
-    this.surcharges[Surcharges.STRONG_CAR].active = false;
-    this.coverages[Coverages.AO_PLUS].active = false;
-    this.coverages[Coverages.GLASS_PROTECTION].active = false;
-    this.discounts[Discounts.ADVISER].active = false;
+    this.basePrice = +newBasePrice.toFixed(2);
 
     return true;
   }
@@ -138,7 +132,7 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
     this.surcharges[Surcharges.STRONG_CAR] = {
       available: this.vehiclePower > 100 && !basePriceIsMatched,
       active: this.vehiclePower > 100 && !basePriceIsMatched,
-      amount: this.basePrice * strongCarSurcharge,
+      amount: +(this.basePrice * strongCarSurcharge).toFixed(2),
     };
 
     // --- Coverages ---
@@ -157,11 +151,11 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
       (e) => e.title === ModifierTitle.GLASS_PROTECTION,
     ).amount;
     this.coverages[Coverages.GLASS_PROTECTION] = {
-      available: true,
+      available: !basePriceIsMatched,
       active:
         this.coverages[Coverages.GLASS_PROTECTION]?.active &&
         !basePriceIsMatched,
-      amount: this.vehiclePower * glassProtection,
+      amount: +(this.vehiclePower * glassProtection).toFixed(2),
     };
 
     // AO Plus
@@ -172,9 +166,9 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
       (e) => e.title === ModifierTitle.AO_PLUS_UNDER,
     ).amount;
     this.coverages[Coverages.AO_PLUS] = {
-      available: true,
+      available: !basePriceIsMatched,
       active:
-        (this.coverages[Coverages.AO_PLUS].active && !basePriceIsMatched) ??
+        (this.coverages[Coverages.AO_PLUS]?.active && !basePriceIsMatched) ??
         false,
       amount: this.age < 30 ? ageUnder : ageOver,
     };
@@ -186,8 +180,8 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
     ).amount;
     this.discounts[Discounts.COMMERCIAL] = {
       available: true,
-      active: this.discounts[Discounts.COMMERCIAL].active ?? false,
-      amount: this.basePrice * commercialDiscount,
+      active: this.discounts[Discounts.COMMERCIAL]?.active,
+      amount: +(this.basePrice * commercialDiscount).toFixed(2),
     };
 
     // Adviser discount
@@ -195,18 +189,18 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
       (e) => e.title === ModifierTitle.ADVISER_DISCOUNT,
     ).amount;
     const numberOfActiveCoverages = Object.values(this.coverages).filter(
-      (c) => c.active,
+      (c) => c?.active,
     ).length;
     const adviserDiscountActive =
-      this.discounts[Discounts.ADVISER].active && numberOfActiveCoverages >= 2;
+      this.discounts[Discounts.ADVISER]?.active && numberOfActiveCoverages >= 2;
     const priceOfActiveCoverages = Object.values(this.coverages).reduce(
-      (acc, c) => (c.active ? acc + c.amount : acc),
+      (acc, c) => (c?.active ? acc + c.amount : acc),
       0,
     );
     this.discounts[Discounts.ADVISER] = {
-      available: numberOfActiveCoverages >= 2,
+      available: numberOfActiveCoverages >= 2 && !basePriceIsMatched,
       active: adviserDiscountActive,
-      amount: priceOfActiveCoverages * adviserDiscount,
+      amount: +(priceOfActiveCoverages * adviserDiscount).toFixed(2),
     };
 
     // VIP discount
@@ -214,14 +208,15 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
       (e) => e.title === ModifierTitle.VIP_DISCOUNT,
     ).amount;
     const vipDiscountActive =
-      this.discounts[Discounts.VIP].active &&
+      this.discounts[Discounts.VIP]?.active &&
       (this.vehiclePower > 80 || basePriceIsMatched);
     const priceOfActiveSurcharges = Object.values(this.surcharges).reduce(
-      (acc, c) => (c.active ? acc + c.amount : acc),
+      (acc, c) => (c?.active ? acc + c.amount : acc),
       0,
     );
-    const priceOfActiveDiscounts = Object.values(this.discounts).reduce(
-      (acc, c) => (c.active ? acc + c.amount : acc),
+    const priceOfActiveDiscounts = Object.entries(this.discounts).reduce(
+      (acc, [key, value]) =>
+        value?.active && key !== Discounts.VIP ? acc + value.amount : acc,
       0,
     );
     // calculate total price by adding all active coverages and surcharges and subtracting all active discounts from base price
@@ -233,14 +228,15 @@ export class InsurancePolicyEntity extends BaseEntity<InsurancePolicy> {
     this.discounts[Discounts.VIP] = {
       available: this.vehiclePower > 80,
       active: vipDiscountActive,
-      amount: tempTotalPrice * vipDiscount,
+      amount: +(tempTotalPrice * vipDiscount).toFixed(2),
     };
 
     // Calculate final price
-    const vipDiscountAmount = this.discounts[Discounts.VIP].active
+    const vipDiscountAmount = this.discounts[Discounts.VIP]?.active
       ? this.discounts[Discounts.VIP].amount
       : 0;
-    const finalTotalPrice = tempTotalPrice - vipDiscountAmount - this.voucher;
+    const finalTotalPrice =
+      tempTotalPrice - vipDiscountAmount - (this.voucher ?? 0);
     this.totalPrice = Math.max(+finalTotalPrice.toFixed(2), 0);
   }
 }

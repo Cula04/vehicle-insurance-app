@@ -3,3 +3,5 @@ export enum Discounts {
   ADVISER = "Adviser discount",
   VIP = "VIP discount",
 }
+
+export type DiscountsType = keyof typeof Discounts;

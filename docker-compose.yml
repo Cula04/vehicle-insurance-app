@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   db:
@@ -6,7 +6,7 @@ services:
     container_name: mongodb
     restart: always
     ports:
-      - '27017:27017'
+      - "27015:27017"
     volumes:
       - mongodb_data:/data/db
 

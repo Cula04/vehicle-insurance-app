@@ -1,13 +1,8 @@
 {
-  "name": "vehicle-insurance-app",
+  "name": "@vehicle-insurance-app/root",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "common",
-    "frontend"
-  ],
   "scripts": {
-    "install": "npm install --ignore-scripts",
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\" \"docker-compose up -d\"",
     "start:frontend": "cd frontend && npm start",
     "start:backend": "cd backend && npm run start:dev"

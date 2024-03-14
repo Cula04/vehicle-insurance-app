@@ -3,15 +3,16 @@ import { Discounts } from "./discounts.enum";
 import { Surcharges } from "./surcharges.enum";
 import { UserData } from "./user-data.type";
 
-type InsurancePriceModifiers = {
-  [key in Coverages | Discounts | Surcharges]?: {
-    active: boolean;
-    amount: number;
-  };
+export type ModifierData = {
+  active: boolean;
+  available: boolean;
+  amount: number;
 };
 
 export type InsurancePolicy = UserData & {
   basePrice: number;
   totalPrice: number;
-  modifiers: InsurancePriceModifiers;
+  discounts: { [key in Discounts]?: ModifierData };
+  surcharges: { [key in Surcharges]?: ModifierData };
+  coverages: { [key in Coverages]?: ModifierData };
 };

@@ -1,6 +1,6 @@
 export type UserData = {
   name: string;
-  birthDate: Date;
+  birthDate: string;
   city: string;
   vehiclePower: number;
   voucher?: number;
