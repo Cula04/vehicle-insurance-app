@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/common/base-classes/base.entity';
+import { BaseEntity } from '../../common/base-classes/base.entity';
 import { Coverages, Discounts, InsurancePolicy, Surcharges } from '../types';
 import { ModifierTitle } from '../types/modifiers-record.type';
 import { BasePriceEntity } from './base-price.entity';

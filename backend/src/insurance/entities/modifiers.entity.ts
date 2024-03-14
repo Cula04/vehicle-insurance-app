@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/common/base-classes/base.entity';
+import { BaseEntity } from '../../common/base-classes/base.entity';
 import { ModifiersRecord } from '../types/modifiers-record.type';
 
 export class ModifiersEntity extends BaseEntity<ModifiersRecord> {

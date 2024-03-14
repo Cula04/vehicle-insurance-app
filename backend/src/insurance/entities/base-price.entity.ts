@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/common/base-classes/base.entity';
+import { BaseEntity } from '../../common/base-classes/base.entity';
 import { BasePriceRecord } from '../types/base-price.type';
 
 export class BasePriceEntity extends BaseEntity<BasePriceRecord> {
