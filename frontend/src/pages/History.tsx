@@ -7,12 +7,15 @@ export const History: React.FC = () => {
 
   useEffect(() => {
     const fetchPolicyLogs = async (): Promise<void> => {
-      const response = await fetch("http://localhost:3001/insurance/logs", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/insurance/logs`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message);

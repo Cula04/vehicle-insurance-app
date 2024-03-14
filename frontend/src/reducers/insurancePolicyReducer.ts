@@ -36,13 +36,16 @@ const initialState: InsurancePolicyState = {
 const fetchPolicy = async (
   policy: InsurancePolicy
 ): Promise<OutputDto<InsurancePolicy>> => {
-  const response = await fetch("http://localhost:3001/insurance/calculate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(policy),
-  });
+  const response = await fetch(
+    `${process.env.REACT_APP_BACKEND_URL}/insurance/calculate`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(policy),
+    }
+  );
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message);
